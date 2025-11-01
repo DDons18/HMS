@@ -12,3 +12,9 @@ Login Details for admin : admin/admin123
 Login Details for Patient: johndoe12@test.com/Test@123
 Login Details for Doctor: anujk123@test.com/Test@123
 
+Project Structure
+
+- Frontend: HTML, CSS, JS, Bootstrap
+- Backend: PHP 8.2 + Apache
+- Database: MySQL 8.0
+- Containerization: Docker & Docker Compose
