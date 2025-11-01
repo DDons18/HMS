@@ -1,0 +1,59 @@
+services:
+  # -------------------------------
+  # 🗄️ MySQL Database Service
+  # -------------------------------
+  db:
+    image: mysql:8.0                    # Official MySQL image
+    container_name: hospital-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword # Root password for MySQL
+      MYSQL_DATABASE: hospital          # Database name
+      MYSQL_USER: hospital_user         # Custom user
+      MYSQL_PASSWORD: hospital_pass     # User password
+    volumes:
+      - ./SQL File/:/docker-entrypoint-initdb.d/  # Auto-import your SQL file on first run
+      - db_data:/var/lib/mysql                    # Persistent data volume
+    ports:
+      - "3306:3306"                   # Host:Container port mapping
+
+  # -------------------------------
+  # 🧠 Backend (PHP + Apache)
+  # -------------------------------
+  backend:
+    image: hms-backend                # Image you built (php:8.2-apache base)
+    container_name: hospital-backend
+    depends_on:
+      - db                            # Start DB before backend
+    environment:
+      DB_HOST: db                     # Container name of MySQL
+      DB_NAME: hospital
+      DB_USER: hospital_user
+      DB_PASS: hospital_pass
+    # Comment this out if you don't need live sync
+# volumes:
+#   - ./hms:/var/www/html
+         # Sync local backend folder
+    ports:
+      - "5000:80"                          # Internal port for backend
+    restart: unless-stopped
+
+  # -------------------------------
+  # 🖥️ Frontend (Nginx)
+  # -------------------------------
+  frontend:
+    image: hms-frontend               # Image you built (nginx base)
+    container_name: hospital-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"                     # Access frontend at http://localhost:8080
+    volumes:
+      - ./assets:/usr/share/nginx/html
+    restart: unless-stopped
+
+# -------------------------------
+# 🗃️ Define Docker volume for DB
+# -------------------------------
+volumes:
+  db_data:
